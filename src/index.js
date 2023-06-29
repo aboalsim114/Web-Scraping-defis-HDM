@@ -7,25 +7,30 @@ async function start() {
     const url = 'https://fr.tripadvisor.be/Restaurants-g188646-Charleroi_Hainaut_Province_Wallonia.html';
 
     await page.goto(url);
-    await page.waitForNetworkIdle();
 
-    await page.evaluate(() => {
-        const cookies = document.querySelector("#onetrust-accept-btn-handler");
-        cookies.click();
+    const restoLinks = await page.$$eval('.biGQs > a', (links) => {
+        return links.map((link) => link.href);
     });
 
-    await page.waitForNetworkIdle();
+    const restaurantData = [];
 
-    await page.evaluate(() => {
-        const restoNames = document.querySelectorAll(".BMQDV._F.G-.bYExr.SwZTJ.FGwzt.ukgoS");
-        const restoArray = Array.from(restoNames);
-        restoArray.forEach((restoName) => {
-            restoName.click();
-        });
-    });
+    for (const link of restoLinks) {
+        const newPage = await browser.newPage();
+        await newPage.goto(link);
+        await newPage.waitForNavigation();
 
+        const name = await newPage.$eval('#component_53 > div > div.acKDw.w.O > h1', (element) => element.textContent);
+        const number = await newPage.$eval('#component_54 > div.hILIJ > div > div:nth-child(3) > div > div > div:nth-child(5) > div > a > span > span.yEWoV', (element) => element.textContent.trim());
 
-    await page.screenshot({ path: 'images/bg.png', fullPage: true });
+        restaurantData.push({ name, number });
+
+        await newPage.close();
+    }
+
+    const jsonData = JSON.stringify(restaurantData, null, 2);
+    await fs.writeFile('info.json', jsonData);
+
+    await browser.close();
 }
 
 start();
