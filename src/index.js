@@ -9,10 +9,7 @@ async function start() {
     await page.goto(url);
     await page.waitForNetworkIdle();
 
-    await page.evaluate(() => {
-        const trustBtn = document.querySelector("#onetrust-accept-btn-handler");
-        trustBtn.click();
-    })
+
 
     const restoLinks = await page.$$eval('.biGQs > a', (links) => {
         return links.map((link) => link.href);
