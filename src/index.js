@@ -6,7 +6,7 @@ async function start() {
     const browser = await puppeteer.launch({ headless: false });
     const page = await browser.newPage();
     const url = 'https://fr.tripadvisor.be/Restaurants-g188646-Charleroi_Hainaut_Province_Wallonia.html';
-    await page.goto(url, { waitUntil: 'networkidle0', timeout: 60000 }); // Timeout set to 60 seconds
+    await page.goto(url, { waitUntil: 'networkidle0', timeout: 60000 });
 
 
     // Récupère les liens des restaurants de la page
@@ -28,6 +28,7 @@ async function start() {
         const newPage = await browser.newPage(); // Crée une nouvelle page pour chaque restaurant
         await newPage.goto(link, { waitUntil: 'networkidle0' }); // Navigue vers le lien du restaurant et attend que les requêtes réseau soient terminées
         const name = await newPage.$eval('h1[data-test-target=top-info-header]', (element) => element.textContent); // Récupère le nom du restaurant
+        await newPage.screenshot({ path: `images/${name}.png`, fullPage: true }); // fais une capture d'ecran de chaque page avec le nom du restaurent .png 
         const number = await newPage.$eval('span.AYHFM a.BMQDV', (el) => el.textContent); // Récupère le numéro du restaurant
         console.log("number : ", number);
         console.log("titre : ", name);
