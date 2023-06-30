@@ -15,7 +15,6 @@ async function start() {
     });
 
 
-
     await page.waitForNetworkIdle();
 
     console.log(restoLinks);
@@ -38,6 +37,7 @@ async function start() {
         await fs.writeFile('info.json', jsonData);
     }
 
+    await browser.close();
 
 
 }
