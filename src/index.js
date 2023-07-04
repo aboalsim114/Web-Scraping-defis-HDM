@@ -8,14 +8,11 @@ async function start() {
     const url = 'https://fr.tripadvisor.be/Restaurants-g188646-Charleroi_Hainaut_Province_Wallonia.html';
     await page.goto(url, { waitUntil: 'networkidle0', timeout: 60000 });
 
+    await page.waitForNetworkIdle();
 
     // Récupère les liens des restaurants de la page
-    const restoLinks = await page.evaluate(() => {
-        return Array.from(document.querySelectorAll(".biGQs > a")).map((link) => link.href);
-    });
-
-
-    await page.waitForNetworkIdle();
+    await page.waitForSelector('.biGQs ');
+    const restoLinks = await page.$$eval('.biGQs > a', (links) => links.map((link) => link.href));
 
     console.log(restoLinks);
 
@@ -33,13 +30,21 @@ async function start() {
         console.log("titre : ", name);
         restaurantData.push({ name, number });
         await newPage.close(); // Ferme la nouvelle page après avoir récupéré les informations
-        const jsonData = JSON.stringify(restaurantData, null, 2); // Convertit les données des restaurants en JSON
-        await fs.writeFile('info.json', jsonData);
+
+
     }
 
-    await browser.close();
 
+    const currentDate = new Date();
+    const fileName = currentDate.toISOString().replace(/[-:]/g, "").slice(0, 14) + ".json";
+    const jsonData = JSON.stringify(restaurantData, null, 2);
+    await fs.writeFile(fileName, jsonData);
+
+
+    await browser.close()
 
 }
+
+
 
 start();
