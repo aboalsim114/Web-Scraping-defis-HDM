@@ -6,7 +6,10 @@ async function start() {
     const browser = await puppeteer.launch({ headless: false });
     const page = await browser.newPage();
     const url = 'https://fr.tripadvisor.be/Restaurants-g188646-Charleroi_Hainaut_Province_Wallonia.html';
-    await page.goto(url, { waitUntil: 'networkidle0', timeout: 60000 });
+    await page.goto(url, {
+        waitUntil: 'load',
+        timeout: 0
+    });
 
     await page.waitForNetworkIdle();
 
@@ -38,7 +41,10 @@ async function start() {
     const currentDate = new Date();
     const fileName = currentDate.toISOString().replace(/[-:]/g, "").slice(0, 14) + ".json";
     const jsonData = JSON.stringify(restaurantData, null, 2);
-    await fs.writeFile(fileName, jsonData);
+    if (restaurantData.length > 0) {
+
+        await fs.writeFile(fileName, jsonData);
+    }
 
 
     await browser.close()
